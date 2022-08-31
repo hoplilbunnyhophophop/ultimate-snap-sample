@@ -1,0 +1,461 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Hello, Snaps!</title>
+    <link rel="icon" type="image/svg" href="./images/icon.svg" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            /* margin: 180px auto 0 auto; */
+            /* max-width: 500px; */
+            width: 100%;
+        }
+        
+        a {
+            -webkit-transition: all .2s linear;
+            -moz-transition: all .2s linear;
+            transition: all .2s linear;
+        }
+        
+        .pagination li {
+            width: 150px;
+            border-top-color: #282828;
+            border-bottom-color: #282828;
+        }
+        
+        .pagination li:before,
+        .pagination .active:after,
+        .pagination .active:before,
+        .pagination .active~li:before {
+            border-left-color: #282828;
+            border-right-color: #282828;
+        }
+        
+        .pagination .active a {
+            color: #ccc;
+        }
+        
+        .pagination .disabled a,
+        .pagination .disabled:hover a {
+            color: #333;
+            cursor: default;
+        }
+        
+        .pagination li:hover a {
+            color: #c9282d;
+        }
+        /*
+       * Basic style
+       */
+        
+        .pagination {
+            margin: 20px;
+            color: #888;
+            font-family: "Edmondsans", Arial;
+            font-size: 15px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .pagination ul {
+            display: inline-block;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        
+        .pagination li {
+            line-height: 10%;
+            border-right: 10px solid transparent;
+            border-bottom-width: 17px;
+            border-top-width: 17px;
+            border-style: solid;
+            border-left: 0;
+            height: 0;
+            float: left;
+            margin-right: 3px;
+            position: relative;
+        }
+        
+        .pagination li:before {
+            border-bottom-color: transparent;
+            border-left-color: transparent;
+            border-top-color: transparent;
+            border-width: 17px 10px 17px 0;
+            border-style: solid;
+            position: absolute;
+            content: '';
+            left: -10px;
+            height: 0px;
+            top: -17px;
+            width: 0px;
+        }
+        
+        .pagination .active~li:before {
+            border-bottom-color: transparent;
+            border-top-color: transparent;
+            border-width: 17px 0 17px 10px;
+            right: -10px;
+            left: auto;
+        }
+        
+        .pagination .active~li {
+            border-left: 10px solid transparent;
+            border-right: 0;
+        }
+        
+        .pagination .active {
+            border-right: 0;
+            border-left: 0;
+        }
+        
+        .pagination .active:after,
+        .pagination .active:before {
+            border-bottom-color: transparent;
+            border-top-color: transparent;
+            border-width: 17px 10px 17px 0;
+            border-style: solid;
+            position: absolute;
+            content: '';
+            height: 0px;
+            width: 0px;
+            top: -17px;
+            left: -10px;
+        }
+        
+        .pagination .active:after {
+            border-bottom-color: transparent;
+            border-right-color: transparent;
+            border-top-color: transparent;
+            border-width: 17px 0 17px 10px;
+            right: -10px;
+            left: auto;
+        }
+        
+        .pagination a {
+            line-height: 36px;
+            margin-top: -17px;
+            display: block;
+            height: 34px;
+            width: 30px;
+        }
+        
+        .pagination .prev {
+            width: 50px;
+            -webkit-border-radius: 20px 0 0 20px;
+            -moz-border-radius: 20px 0 0 20px;
+            border-radius: 20px 0 0 20px;
+        }
+        
+        .pagination .next {
+            width: 50px;
+            -webkit-border-radius: 0 20px 20px 0;
+            -moz-border-radius: 0 20px 20px 0;
+            border-radius: 0 20px 20px 0;
+            border-right: 0;
+        }
+        
+        .pagination .prev a,
+        .pagination .next a {
+            text-indent: -4px;
+            line-height: 38px;
+            font-size: 30px;
+        }
+        
+        .pagination .prev a {
+            text-indent: 4px;
+        }
+        
+        .pagination .prev:before,
+        .pagination .next:before {
+            content: none;
+        }
+        
+        .view {
+            width: 700px;
+            height: 500px;
+            border: black;
+            border-style: dotted;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1>Hello, Snaps!</h1>
+    <p>This is a simple application demostrating the full capability of Metamask Snap APIs.</p>
+    <p>Have fun!</p>
+    <p>Before strat, click the button 👇 below to enable the demo Snap in MetaMask Flask</p>
+    <button class="connect">Connect/install the sample Snap on Metamask</button>
+    <div class="pagination">
+        <ul>
+            <li id="page1" class="active">List Snaps</li>
+            <li id="page2">Snap confirmation</li>
+            <li id="page3">Snap confirmation 2</li>
+            <li id="page4">Snap notification</li>
+            <li id="page5">Store/retrieve data</li>
+            <li id="page6">Get coin</li>
+        </ul>
+    </div>
+
+    <div class="view" id="view1">
+        <h3>List all snaps.</h3>
+        <p>This method returns a list of all permitted Snaps and their metadata.</p>
+        <p>You can also open the console to view the details of the Snaps.</p>
+        <button onclick="getList()">get Snaps</button>
+        <div class="result" id="result1"></div>
+    </div>
+    <div class="view" id="view2" hidden>
+        <h3>Invoke a Snap.</h3>
+        <p>This method causes a confirmation to be displayed in the MetaMask UI.</p>
+        <button onclick="invokeSnap1()">call Snap</button>
+        <div class="result" id="result2"></div>
+    </div>
+    <div class="view" id="view3" hidden>
+        <h3>Invoke a Snap.</h3>
+        <p>This is another method to open a confirmation page in MetaMask UI.</p>
+        <p>Different from the previous example,this is called with a restricted method. </p>
+        <button onclick="invokeSnap2()">call Snap</button>
+        <div class="result" id="result3"></div>
+    </div>
+    <div class="view" id="view4" hidden>
+        <h3>Trigger a Snap notification.</h3>
+        <p>This method displays a notification in MetaMask or natively in the browser.</p>
+        <p>Input a notification message👇.</p>
+        <input type="text" id="notificationMessage" placeholder="Fill in your message">
+        <label><input type="radio" name="notificationType" value="inApp" checked></input> In metamask</label>
+        <label><input type="radio" name="notificationType" value="native"></input>In browser(might not work as expected)</label>
+        <button onclick="invokeSnap3()">call Snap</button>
+        <div class="result" id="result4"></div>
+    </div>
+    <div class="view" id="view5" hidden>
+        <h3>Store/retrieve data.</h3>
+        <p>This method stores a message in Metamask and retrieve it upon request.</p>
+        <p>Input message👇.</p>
+        <input type="text" id="stateMessage" placeholder="Fill in your message">
+        <button onclick="storeMsg()">store message</button>
+        <button onclick="getMsg()">get message</button>
+        <div class="result" id="result5"></div>
+    </div>
+    <div class="view" id="view6" hidden>
+        <h3>Get Coin.</h3>
+        <p>This method gets the key of the coin specified.</p>
+        <p>Click button👇.</p>
+        <button onclick="getCoin()">get coin</button>
+        <div class="result" id="result6"></div>
+    </div>
+
+    </div>
+</body>
+
+<script>
+    const snapId = `local:${window.location.href}`;
+
+    const connectButton = document.querySelector('button.connect')
+
+    connectButton.addEventListener('click', connect)
+
+    // here we get permissions to interact with and install the snap
+    async function connect() {
+        await ethereum.request({
+            method: 'wallet_enable',
+            params: [{
+                wallet_snap: {
+                    [snapId]: {}
+                },
+            }]
+        })
+    }
+
+    async function getList() {
+        $("#result1").empty()
+        const result = await ethereum.request({
+            method: 'wallet_getSnaps'
+        });
+        console.log(result)
+        count = 1
+        for (const [key, value] of Object.entries(result)) {
+            $("#result1").append("<p>Snap" + count + ":</p>")
+            $("#result1").append("<p>" + key + "</p>")
+            count += 1
+        }
+    }
+
+    async function invokeSnap1() {
+        $("#result2").empty()
+        try {
+            const response = await ethereum.request({
+                method: 'wallet_invokeSnap',
+                params: [snapId, {
+                    method: 'hello'
+                }]
+            })
+            $("#result2").append("<p>Snap call successful</p>")
+            if (response == true)
+                $("#result2").append("User accept the call")
+            else
+                $("#result2").append("User reject the call")
+        } catch (err) {
+            console.error(err)
+            $("#result2").append("<p>Error occurs while calling the Snap</p>")
+        }
+    }
+
+    async function invokeSnap2() {
+        $("#result3").empty()
+        try {
+            const response = await ethereum.request({
+                method: 'wallet_snap_' + snapId,
+                params: [{
+                    method: 'hello'
+                }]
+            })
+            $("#result3").append("<p>Snap call successful</p>")
+            if (response == true)
+                $("#result3").append("User accept the call")
+            else
+                $("#result3").append("User reject the call")
+        } catch (err) {
+            console.error(err)
+            $("#result3").append("<p>Error occurs while calling the Snap</p>")
+        }
+    }
+
+    async function invokeSnap3() {
+        var notificationType = $('input[name="notificationType"]:checked').val();
+        var message = $('#notificationMessage').val();
+        $("#result4").empty()
+        console.log(notificationType)
+        console.log(message)
+        try {
+            const response = await ethereum.request({
+                method: 'wallet_snap_' + snapId,
+                params: [{
+                    method: 'notification',
+                    type: notificationType,
+                    message: message,
+                }]
+            })
+        } catch (err) {
+            console.error(err)
+            $("#result4").append("<p>Error occurs while calling the Snap</p>")
+        }
+    }
+
+    async function storeMsg() {
+        var message = $('#stateMessage').val();
+        $("#result5").empty()
+        try {
+            const response = await ethereum.request({
+                method: 'wallet_snap_' + snapId,
+                params: [{
+                    method: 'storeMessage',
+                    message: message,
+                }]
+            })
+            $("#result5").append("<p>Success store message!</p>")
+        } catch (err) {
+            console.error(err)
+            $("#result5").append("<p>Error occurs while calling the Snap</p>")
+        }
+    }
+
+    async function getMsg() {
+        $("#result5").empty()
+        try {
+            const response = await ethereum.request({
+                method: 'wallet_snap_' + snapId,
+                params: [{
+                    method: 'getMessage'
+                }]
+            })
+            $("#result5").append("<p>Message retrieved:</p>")
+            $("#result5").append("<p>" + response + "</p>")
+        } catch (err) {
+            console.error(err)
+            $("#result5").append("<p>Error occurs while calling the Snap</p>")
+        }
+
+    }
+
+    async function getCoin() {
+        $("#result6").empty()
+        try {
+            const response = await ethereum.request({
+                method: 'wallet_snap_' + snapId,
+                params: [{
+                    method: 'getCoin'
+                }]
+            })
+            $("#result6").append("<p>Doge coin found:</p>")
+            console.log(response)
+            $("#result6").append("<p> Chain code:</p>")
+            $("#result6").append("<p> " + response.chainCode + "</p>")
+            $("#result6").append("<p> public key:</p>")
+            $("#result6").append("<p> " + response.publicKey + "</p>")
+            $("#result6").append("<p> private key:</p>")
+            $("#result6").append("<p> " + response.privateKey + "</p>")
+        } catch (err) {
+            console.error(err)
+            $("#result6").append("<p>Error occurs while calling the Snap</p>")
+        }
+
+    }
+</script>
+
+<script>
+    // For HTML interaction
+    $('.pagination li').on('click', function(event) {
+        event.preventDefault();
+        var $this = $(this),
+            $pagination = $this.parent(),
+            $pages = $pagination.children(),
+            $active = $pagination.find('.active');
+
+        if ($this.hasClass('prev')) {
+            if ($pages.index($active) > 1) {
+                $active.removeClass('active').prev().addClass('active');
+            }
+        } else if ($this.hasClass('next')) {
+            if ($pages.index($active) < $pages.length - 2) {
+                $active.removeClass('active').next().addClass('active');
+            }
+        } else {
+            $this.addClass('active').siblings().removeClass('active');
+        }
+
+        $active = $pagination.find('.active');
+        changeView(event.target.id)
+
+    });
+
+    $('.pagination li:eq(0)').trigger('click');
+
+    function changeView(pageId) {
+        $(".view").hide()
+        switch (pageId) {
+            case "page1":
+                $("#view1").show()
+                break;
+            case "page2":
+                $("#view2").show()
+                break;
+            case "page3":
+                $("#view3").show()
+                break;
+            case "page4":
+                $("#view4").show()
+                break;
+            case "page5":
+                $("#view5").show()
+                break;
+            case "page6":
+                $("#view6").show()
+                break;
+        }
+    }
+</script>
+
+</html>
